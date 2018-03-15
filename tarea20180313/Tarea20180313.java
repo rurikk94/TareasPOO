@@ -1,5 +1,3 @@
-package tarea20180313;
-
 import java.io.*;
 
 public class Tarea20180313 {
@@ -8,9 +6,10 @@ public class Tarea20180313 {
 //        Float[][] ratings = {{2f, 5f, 6.5f, 0.1f, 6f, 8f, 5f}, {1f, 2f, 3f, 4f, 5f, 6f, 7f}, {10f, 5f, 6f, 7f, 4f, 5f, 5f}, {10f, 5f, 6f, 7f, 4f, 5f, 5f}};
 //        String[] nombreMatinales = {"chv", "c13", "tvn", "cqc"};
 
-        int matinales, dias;
+        int matinales, dias,respuesta=0;
         Float[][] ratings;
         String[] nombreMatinales;
+        
 
         matinales = ingresarNumero("ingrese la cantidad de matinales");
 
@@ -31,17 +30,51 @@ public class Tarea20180313 {
             }
         }
         
-        mejoresMatinales(nombreMatinales, ratings);
-        promedioRatingMatinal(nombreMatinales, ratings);
-        ordenarMatinales(nombreMatinales, ratings);
+        
+        while (respuesta !=4)
+        {
+        respuesta=ingresarNumero("Ingrese una Opcion \n 1. Mejor Matinal 2. Promedio 3.Ordenar Matinales 4.Salir");
+            switch(respuesta){            
+                case 1:
+                    imprimir("El matinal con mayor promedio de rating es: ");
+                    imprimir(mejoresMatinales(nombreMatinales, ratings));                    
+                    break;
+                case 2:
+                    imprimir("Ingrese el nombre de un matinal, e indique un rango de dias para deciros su promedio en esos dias: ");
+                    String nombreMatinal = ingresarString("Ingrese el nombre del matinal");
+                    int diaInicio,diaFin;
+                    do {
+                         diaInicio = ingresarNumero("Ingrese el Inicio del rango de dias (1~"+ (ratings[0].length - 1)+")");
+                    } while (diaInicio < 1 || diaInicio > ratings[0].length - 1);
+                    do {
+                        diaFin = ingresarNumero("Ingrese el Fin del rango de dias ("+(diaInicio+1)+"~"+ (ratings[0].length)+")");
+                    } while (diaFin < diaInicio || diaFin > ratings[0].length);
+                   Float promedioRatingMatinal = promedioRatingMatinal(nombreMatinales, ratings,nombreMatinal,diaInicio,diaFin);
+                    if (promedioRatingMatinal != -1)
+                        imprimir("El promedio de rating en esos dias en el matinal '" + nombreMatinal + "' es de " + promedioRatingMatinal);
+                    else
+                        imprimir("El matinal " + nombreMatinal + " no fue encontrado");                    
+                    break;
+                case 3:
+                    ordenarMatinales(nombreMatinales, ratings);
+                    imprimir("Los matinales ordenados son:");
+                    for (int i = 0; i < nombreMatinales.length; i++) {
+                        imprimir(i+1 + ". " + nombreMatinales[i] + " prom: " + promedioDeMatinal(ratings[i]));
+                    }
+                    break;            
+            }
+        
+            
+        }
+        
 
     }
 
-    public static void mejoresMatinales(String[] nombreMatinales, Float[][] ratings) {
+    public static String mejoresMatinales(String[] nombreMatinales, Float[][] ratings) {
 
-        imprimir("El matinal con mayor promedio de rating es: ");
         Float promedioMatinal, mejorPromedio;
         mejorPromedio = -10f;
+        String mejoresMatinales="";
 
         for (int i = 0; i < nombreMatinales.length; i++) {
             promedioMatinal = promedioDeMatinal(ratings[i]);
@@ -52,12 +85,11 @@ public class Tarea20180313 {
 
         for (int i = 0; i < nombreMatinales.length; i++) {
             promedioMatinal = promedioDeMatinal(ratings[i]);
-            //imprimir("nombre: " + nombreMatinales[i] + " promedio " + promedioMatinal + "/" + mejorPromedio);
             if (compararFloat(mejorPromedio, promedioMatinal)) {
-                imprimir(nombreMatinales[i]);
+                mejoresMatinales += nombreMatinales[i] + " ";
             }
         }
-
+        return mejoresMatinales;
     }
 
     public static void ordenarMatinales(String[] nombreMatinales, Float[][] ratings) {
@@ -76,10 +108,6 @@ public class Tarea20180313 {
                 }
             }
         }
-        imprimir("Los matinales ordenados son:");
-        for (int i = 0; i < nombreMatinales.length; i++) {
-            imprimir(i+1 + ". " + nombreMatinales[i] + " prom: " + promedioDeMatinal(ratings[i]));
-        }
     }
 
     public static float promedioDeMatinal(Float[] rating) {
@@ -92,32 +120,20 @@ public class Tarea20180313 {
 
     ;
 
-    public static void promedioRatingMatinal(String[] nombreMatinales, Float[][] ratings) throws IOException {
-        System.out.println("Ingrese el nombre de un matinal, e indique un rango de dias para deciros su promedio en esos dias: ");
-        int diaInicio = 0, diaFin = 0;
-        String nombreMatinal = ingresarString("Ingrese el nombre del matinal");
-
+    public static Float promedioRatingMatinal(String[] nombreMatinales, Float[][] ratings,String nombreMatinal,int diaInicio, int diaFin) throws IOException {
+        
         Float promedioMatinal = -1f;
         for (int i = 0; i < nombreMatinales.length; i++) {
             //BUSCA el Matinal
             if (nombreMatinales[i].equals(nombreMatinal)) {
-                do {
-                    diaInicio = ingresarNumero("Ingrese el Inicio del rango de dias");
-                } while (diaInicio < 1 || diaInicio > ratings[0].length - 1);
-                do {
-                    diaFin = ingresarNumero("Ingrese el Fin del rango de dias");
-                } while (diaFin < diaInicio || diaFin > ratings[0].length);
                 //CALCULA Promedio del matinal
                 promedioMatinal = 0f;
                 for (int j = diaInicio - 1; j <= diaFin - 1; j++) {
                     promedioMatinal += (ratings[i][j] / diaFin);
                 }
-                imprimir("El promedio de rating en esos dias en el matinal '" + nombreMatinal + "' es de " + promedioMatinal);
             }
         }
-        if (promedioMatinal == -1) {
-            imprimir("El matinal " + nombreMatinal + " no fue encontrado");
-        }
+        return promedioMatinal;
     }
 
     public static void imprimir(String mensaje) {
